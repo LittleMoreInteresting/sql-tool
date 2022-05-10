@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"os"
 	"text/template"
+
+	"github.com/sql-tool/pkg/word"
 )
 
-const structTpl = `type {{. TableName | ToCamelCase} struct {
-{{range .Columns}} {{ length := len .Comment}} {{ if gt $length 0 }}
-	//{{.Comment}} {{else}}// {{.Name}}{{ end }}
-	{{ $typeLen := len .Type }} {{ if gt $typeLen 0 }} {{.Name | ToCamelCase}} {{.Type}} {{.Tag}} {{ else }} {{.Name}} {{ end }}
-{{end}}}
-func (model {{.TableName | ToCamelCase}}} TableName() string {
-	return "{{. TableName}}"
+const structTpl = `type {{ .TableName | ToCamelCase }} struct {
+{{range .Columns}} {{ $typeLen := len .Type }} {{ if gt $typeLen 0 }} {{.Name | ToCamelCase}} {{.Type}} {{.Tag}} {{ else }} {{.Name}} {{ end }} {{ $length := len .Comment}} {{ if gt $length 0 }}//{{ .Comment }} {{else}}// {{.Name}}{{ end }} 
+{{end}}
+}
+
+func (model {{ .TableName | ToCamelCase}}) TableName() string {
+    return "{{ .TableName }}"
 }`
 
 type StructTemplate struct {
@@ -37,14 +39,14 @@ func NewStructTemplate() *StructTemplate {
 
 func (t *StructTemplate) AssemblyColumns(tbColumns []*TableColumn) []*StructColumn {
 	tplColumns := make([]*StructColumn, len(tbColumns))
-	for _, v := range tbColumns {
+	for i, v := range tbColumns {
 		tag := fmt.Sprintf("`json:\"%s\"`", v.ColumnName)
-		tplColumns = append(tplColumns,&StructColumn{
+		tplColumns[i] = &StructColumn{
 			Name:v.ColumnName,
-			Type: DBTypeToStructType[v.ColumnType],
+			Type: DBTypeToStructType[v.DataType],
 			Tag: tag,
 			Comment: v.ColumnComment,
-		})
+		}
 	}
 
 	return tplColumns
@@ -52,7 +54,7 @@ func (t *StructTemplate) AssemblyColumns(tbColumns []*TableColumn) []*StructColu
 
 func (t *StructTemplate) Generate (tbName string,tplColumns []*StructColumn) error {
 	tpl := template.Must(template.New("sqlToSturct").Funcs(template.FuncMap{
-		"ToCamelCase" :nil,
+		"ToCamelCase" :word.UnderscoreToUpperCamelCase,
 	}).Parse(t.structTpl))
 	
 	tplDB := StructTemplateDB{

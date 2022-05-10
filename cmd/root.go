@@ -12,5 +12,5 @@ func Execute() error {
 }
 
 func init() {
-	rootCmd.AddCommand(wordCmd)
+	rootCmd.AddCommand(sqlCmd)
 }
