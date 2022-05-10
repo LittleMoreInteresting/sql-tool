@@ -48,8 +48,29 @@ func (m *DBModel) Connect() error {
 	return nil
 }
 
+func (m *DBModel) GetTableNames(dbName string) ([]string,error) {
+	query := "SELECT TABLE_NAME FROM TABLES WHERE TABLE_SCHEMA= ? ;"
+	rows, err := m.DBEngine.Query(query, dbName)
+	if err != nil {
+		return nil,err
+	}
+	if rows == nil {
+		return nil,errors.New("table not found")
+	}
+	var tables  []string;
+	for rows.Next() {
+		var table string
+		err := rows.Scan(&table)
+		if err != nil {
+			return nil,err
+		}
+		tables = append(tables, table)
+	}
+	return tables,nil;
+}
+
 func(m *DBModel) GetCloumns(dbName, tableName string) ([]*TableColumn,error) {
-	query := "SELECT COLUMN_NAME,DATA_TYPE,COLUMN_KEY,IS_NULLABLE,COLUMN_TYPE,COLUMN_COMMENT FROM COLUMNS WHERE TABLE_SCHEMA= ? AND TABLE_NAME= ?"
+	query := "SELECT COLUMN_NAME,DATA_TYPE,COLUMN_KEY,IS_NULLABLE,COLUMN_TYPE,COLUMN_COMMENT FROM COLUMNS WHERE TABLE_SCHEMA= ? AND TABLE_NAME= ?;"
 	rows,err := m.DBEngine.Query(query,dbName,tableName)
 	if err != nil {
 		return nil,err

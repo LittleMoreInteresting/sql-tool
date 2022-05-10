@@ -39,17 +39,38 @@ var sqlToStructCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("dbModel.Connect error :%v",err)
 		}
-		columns, err := dbModel.GetCloumns(dbName, tableName)
+		if len(tableName) >= 0{
+			columns, err := dbModel.GetCloumns(dbName, tableName)
 		
-		if err != nil {
-			log.Fatalf("dbModel.GetCloumns error :%v",err)
+			if err != nil {
+				log.Fatalf("dbModel.GetCloumns error :%v",err)
+			}
+			tpl := sqlToStruct.NewStructTemplate()
+			tplColumns := tpl.AssemblyColumns(columns)
+			err = tpl.Generate(tableName, tplColumns)
+			if err != nil {
+				log.Fatalf("tpl.Generate error :%v",err)
+			}
 		}
-		tpl := sqlToStruct.NewStructTemplate()
-		tplColumns := tpl.AssemblyColumns(columns)
-		err = tpl.Generate(tableName, tplColumns)
+		
+		tables,err := dbModel.GetTableNames(dbName)
 		if err != nil {
-			log.Fatalf("tpl.Generate error :%v",err)
+			log.Fatalf("dbModel.GetTableNames error :%v",err)
 		}
+		for _, t := range tables {
+			columns, err := dbModel.GetCloumns(dbName, t)
+		
+			if err != nil {
+				log.Fatalf("dbModel.GetCloumns error :%v",err)
+			}
+			tpl := sqlToStruct.NewStructTemplate()
+			tplColumns := tpl.AssemblyColumns(columns)
+			err = tpl.Generate(t, tplColumns)
+			if err != nil {
+				log.Fatalf("tpl.Generate error :%v",err)
+			}
+		}
+		
 	},
 }
 
