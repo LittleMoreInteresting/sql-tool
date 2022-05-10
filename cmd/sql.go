@@ -39,13 +39,14 @@ var sqlToStructCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("dbModel.Connect error :%v",err)
 		}
-		if len(tableName) >= 0{
+		if len(tableName) > 0{
 			columns, err := dbModel.GetCloumns(dbName, tableName)
 		
 			if err != nil {
 				log.Fatalf("dbModel.GetCloumns error :%v",err)
 			}
-			tpl := sqlToStruct.NewStructTemplate()
+			tpl := sqlToStruct.NewStructTemplate(dbName)
+			tpl.CheckDir()
 			tplColumns := tpl.AssemblyColumns(columns)
 			err = tpl.Generate(tableName, tplColumns)
 			if err != nil {
@@ -63,7 +64,8 @@ var sqlToStructCmd = &cobra.Command{
 			if err != nil {
 				log.Fatalf("dbModel.GetCloumns error :%v",err)
 			}
-			tpl := sqlToStruct.NewStructTemplate()
+			tpl := sqlToStruct.NewStructTemplate(dbName)
+			tpl.CheckDir()
 			tplColumns := tpl.AssemblyColumns(columns)
 			err = tpl.Generate(t, tplColumns)
 			if err != nil {

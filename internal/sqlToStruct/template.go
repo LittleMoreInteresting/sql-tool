@@ -2,13 +2,14 @@ package sqlToStruct
 
 import (
 	"fmt"
-	"os"
 	"text/template"
 
+	"github.com/sql-tool/pkg/file"
 	"github.com/sql-tool/pkg/word"
 )
 
-const structTpl = `type {{ .TableName | ToCamelCase }} struct {
+const structTpl = `package model
+type {{ .TableName | ToCamelCase }} struct {
 {{range .Columns}} {{ $typeLen := len .Type }} {{ if gt $typeLen 0 }} {{.Name | ToCamelCase}} {{.Type}} {{.Tag}} {{ else }} {{.Name}} {{ end }} {{ $length := len .Comment}} {{ if gt $length 0 }}//{{ .Comment }} {{else}}// {{.Name}}{{ end }} 
 {{end}}
 }
@@ -19,6 +20,7 @@ func (model {{ .TableName | ToCamelCase}}) TableName() string {
 
 type StructTemplate struct {
 	structTpl string
+	Dir string
 }
 
 type StructColumn struct {
@@ -33,8 +35,8 @@ type StructTemplateDB struct {
 	Columns   []*StructColumn
 }
 
-func NewStructTemplate() *StructTemplate {
-	return &StructTemplate{structTpl: structTpl}
+func NewStructTemplate(dir string) *StructTemplate {
+	return &StructTemplate{structTpl: structTpl,Dir: "dist/"+dir}
 }
 
 func (t *StructTemplate) AssemblyColumns(tbColumns []*TableColumn) []*StructColumn {
@@ -61,6 +63,16 @@ func (t *StructTemplate) Generate (tbName string,tplColumns []*StructColumn) err
 		TableName:tbName,
 		Columns: tplColumns,
 	}
-	
-	return tpl.Execute(os.Stdout,tplDB)
+	out, err := file.CreateWriter(t.Dir+"/"+tbName+".go")
+	if err != nil {
+		return err
+	}
+	return tpl.Execute(out,tplDB)
 }
+
+func (t *StructTemplate) CheckDir()  {
+	if file.CheckSavePath(t.Dir){
+		file.CreateSavePath(t.Dir)
+	}
+}
+
