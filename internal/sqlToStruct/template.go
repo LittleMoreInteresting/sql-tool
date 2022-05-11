@@ -70,9 +70,10 @@ func (t *StructTemplate) Generate (tbName string,tplColumns []*StructColumn) err
 	return tpl.Execute(out,tplDB)
 }
 
-func (t *StructTemplate) CheckDir()  {
+func (t *StructTemplate) CheckDir() string  {
 	if file.CheckSavePath(t.Dir){
 		file.CreateSavePath(t.Dir)
 	}
+	return t.Dir
 }
 

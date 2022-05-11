@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"os/exec"
 
 	"github.com/spf13/cobra"
 	"github.com/sql-tool/internal/sqlToStruct"
@@ -39,6 +40,7 @@ var sqlToStructCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("dbModel.Connect error :%v",err)
 		}
+		var dir string
 		if len(tableName) > 0{
 			columns, err := dbModel.GetCloumns(dbName, tableName)
 		
@@ -46,12 +48,14 @@ var sqlToStructCmd = &cobra.Command{
 				log.Fatalf("dbModel.GetCloumns error :%v",err)
 			}
 			tpl := sqlToStruct.NewStructTemplate(dbName)
-			tpl.CheckDir()
+			dir = tpl.CheckDir()
 			tplColumns := tpl.AssemblyColumns(columns)
 			err = tpl.Generate(tableName, tplColumns)
 			if err != nil {
 				log.Fatalf("tpl.Generate error :%v",err)
 			}
+			exec.Command("gofmt","-w",dir).Run()
+			return 
 		}
 		
 		tables,err := dbModel.GetTableNames(dbName)
@@ -65,13 +69,14 @@ var sqlToStructCmd = &cobra.Command{
 				log.Fatalf("dbModel.GetCloumns error :%v",err)
 			}
 			tpl := sqlToStruct.NewStructTemplate(dbName)
-			tpl.CheckDir()
+			dir = tpl.CheckDir()
 			tplColumns := tpl.AssemblyColumns(columns)
 			err = tpl.Generate(t, tplColumns)
 			if err != nil {
 				log.Fatalf("tpl.Generate error :%v",err)
 			}
 		}
+		exec.Command("gofmt","-w",dir).Run()
 		
 	},
 }
@@ -84,5 +89,5 @@ func init() {
 	sqlToStructCmd.Flags().StringVarP(&charset, "charset", "", "utf8mb4","请输入数据库编码")
 	sqlToStructCmd.Flags().StringVarP(&dbType, "type", "", "mysql","请输入数据库的类型")
 	sqlToStructCmd.Flags().StringVarP(&dbName, "db", "", "","请输入数据库")
-	sqlToStructCmd.Flags().StringVarP(&tableName, "table", "", "","请输入表名")
+	sqlToStructCmd.Flags().StringVarP(&tableName, "table", "", "","请输入表名(不输入将全库导出)")
 }
