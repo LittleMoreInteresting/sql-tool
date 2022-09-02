@@ -9,9 +9,10 @@ import (
 )
 
 const structTpl = `package model
+
 type {{ .TableName | ToCamelCase }} struct {
-{{range .Columns}} {{ $typeLen := len .Type }} {{ if gt $typeLen 0 }} {{.Name | ToCamelCase}} {{.Type}} {{.Tag}} {{ else }} {{.Name}} {{ end }} {{ $length := len .Comment}} {{ if gt $length 0 }}//{{ .Comment }} {{else}}// {{.Name}}{{ end }} 
-{{end}}
+	{{range $index, $element := .Columns}}{{ if gt $index 0 }}
+	{{ end }}{{ $typeLen := len .Type }}{{ if gt $typeLen 0 }}{{.Name | ToCamelCase}}	{{.Type}}	{{.Tag}}{{ else }}{{.Name}}{{ end }}{{ $length := len .Comment}}{{ if gt $length 0 }}// {{ .Comment }}{{else}}// {{.Name}}{{ end }}{{end}}
 }
 
 func (model {{ .TableName | ToCamelCase}}) TableName() string {
@@ -20,7 +21,7 @@ func (model {{ .TableName | ToCamelCase}}) TableName() string {
 
 type StructTemplate struct {
 	structTpl string
-	Dir string
+	Dir       string
 }
 
 type StructColumn struct {
@@ -36,7 +37,7 @@ type StructTemplateDB struct {
 }
 
 func NewStructTemplate(dir string) *StructTemplate {
-	return &StructTemplate{structTpl: structTpl,Dir: "dist/"+dir}
+	return &StructTemplate{structTpl: structTpl, Dir: "dist/" + dir}
 }
 
 func (t *StructTemplate) AssemblyColumns(tbColumns []*TableColumn) []*StructColumn {
@@ -44,9 +45,9 @@ func (t *StructTemplate) AssemblyColumns(tbColumns []*TableColumn) []*StructColu
 	for i, v := range tbColumns {
 		tag := fmt.Sprintf("`json:\"%s\"`", v.ColumnName)
 		tplColumns[i] = &StructColumn{
-			Name:v.ColumnName,
-			Type: DBTypeToStructType[v.DataType],
-			Tag: tag,
+			Name:    v.ColumnName,
+			Type:    DBTypeToStructType[v.DataType],
+			Tag:     tag,
 			Comment: v.ColumnComment,
 		}
 	}
@@ -54,26 +55,25 @@ func (t *StructTemplate) AssemblyColumns(tbColumns []*TableColumn) []*StructColu
 	return tplColumns
 }
 
-func (t *StructTemplate) Generate (tbName string,tplColumns []*StructColumn) error {
+func (t *StructTemplate) Generate(tbName string, tplColumns []*StructColumn) error {
 	tpl := template.Must(template.New("sqlToSturct").Funcs(template.FuncMap{
-		"ToCamelCase" :word.UnderscoreToUpperCamelCase,
+		"ToCamelCase": word.UnderscoreToUpperCamelCase,
 	}).Parse(t.structTpl))
-	
+
 	tplDB := StructTemplateDB{
-		TableName:tbName,
-		Columns: tplColumns,
+		TableName: tbName,
+		Columns:   tplColumns,
 	}
-	out, err := file.CreateWriter(t.Dir+"/"+tbName+".go")
+	out, err := file.CreateWriter(t.Dir + "/" + tbName + ".go")
 	if err != nil {
 		return err
 	}
-	return tpl.Execute(out,tplDB)
+	return tpl.Execute(out, tplDB)
 }
 
-func (t *StructTemplate) CheckDir() string  {
-	if file.CheckSavePath(t.Dir){
+func (t *StructTemplate) CheckDir() string {
+	if file.CheckSavePath(t.Dir) {
 		file.CreateSavePath(t.Dir)
 	}
 	return t.Dir
 }
-
