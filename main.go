@@ -6,7 +6,7 @@ import (
 	"github.com/sql-tool/cmd"
 )
 
-//go:generate go run main.go sql struct -U root -P root --db blog_service --table blog_tag
+//go:generate go run main.go sql struct -U root -P root --db bss_sys
 func main() {
 	err := cmd.Execute()
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 )
+
 type DBModel struct {
 	DBEngine *sql.DB
 	DBInfo   *DBInfo
@@ -28,7 +29,7 @@ type TableColumn struct {
 }
 
 func NewDBModel(info *DBInfo) *DBModel {
-	return &DBModel{DBInfo:info}
+	return &DBModel{DBInfo: info}
 }
 
 func (m *DBModel) Connect() error {
@@ -36,61 +37,61 @@ func (m *DBModel) Connect() error {
 	s := "%s:%s@tcp(%s)/information_schema?charset=%s&parseTime=True&loc=Local"
 	dsn := fmt.Sprintf(
 		s,
-		m. DBInfo.UserName,
-		m.DBInfo. Password,
+		m.DBInfo.UserName,
+		m.DBInfo.Password,
 		m.DBInfo.Host,
 		m.DBInfo.Charset,
 	)
 	m.DBEngine, err = sql.Open(m.DBInfo.DBType, dsn)
-	if err!= nil {
+	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *DBModel) GetTableNames(dbName string) ([]string,error) {
+func (m *DBModel) GetTableNames(dbName string) ([]string, error) {
 	query := "SELECT TABLE_NAME FROM TABLES WHERE TABLE_SCHEMA= ? ;"
 	rows, err := m.DBEngine.Query(query, dbName)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	if rows == nil {
-		return nil,errors.New("table not found")
+		return nil, errors.New("table not found")
 	}
-	var tables  []string;
+	var tables []string
 	for rows.Next() {
 		var table string
 		err := rows.Scan(&table)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
 		tables = append(tables, table)
 	}
-	return tables,nil;
+	return tables, nil
 }
 
-func(m *DBModel) GetCloumns(dbName, tableName string) ([]*TableColumn,error) {
+func (m *DBModel) GetCloumns(dbName, tableName string) ([]*TableColumn, error) {
 	query := "SELECT COLUMN_NAME,DATA_TYPE,COLUMN_KEY,IS_NULLABLE,COLUMN_TYPE,COLUMN_COMMENT FROM COLUMNS WHERE TABLE_SCHEMA= ? AND TABLE_NAME= ?;"
-	rows,err := m.DBEngine.Query(query,dbName,tableName)
+	rows, err := m.DBEngine.Query(query, dbName, tableName)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	if rows == nil {
-		return nil,errors.New("table not found")
+		return nil, errors.New("table not found")
 	}
 
-	var columns  []*TableColumn;
+	var columns []*TableColumn
 	for rows.Next() {
 		var column TableColumn
-		err := rows.Scan(&column.ColumnName,&column.DataType,
-			&column.IsNullable,&column.ColumnKey,&column.ColumnType,&column.ColumnComment)
-			if err != nil {
-				return nil,err
-			}
+		err := rows.Scan(&column.ColumnName, &column.DataType,
+			&column.IsNullable, &column.ColumnKey, &column.ColumnType, &column.ColumnComment)
+		if err != nil {
+			return nil, err
+		}
 		columns = append(columns, &column)
 	}
 
-	return columns,nil;
+	return columns, nil
 }
 
 var DBTypeToStructType = map[string]string{
@@ -119,4 +120,5 @@ var DBTypeToStructType = map[string]string{
 	"time":       "time.Time",
 	"float":      "float64",
 	"double":     "float64",
+	"decimal":    "float64",
 }
