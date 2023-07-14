@@ -8,17 +8,6 @@ import (
 	"github.com/sql-tool/pkg/word"
 )
 
-const structTpl = `package model
-
-type {{ .TableName | ToCamelCase }} struct {
-	{{range $index, $element := .Columns}}{{ if gt $index 0 }}
-	{{ end }}{{ $typeLen := len .Type }}{{ if gt $typeLen 0 }}{{.Name | ToCamelCase}}	{{.Type}}	{{.Tag}}{{ else }}{{.Name}}{{ end }}{{ $length := len .Comment}}{{ if gt $length 0 }}// {{ .Comment }}{{else}}// {{.Name}}{{ end }}{{end}}
-}
-
-func (model {{ .TableName | ToCamelCase}}) TableName() string {
-    return "{{ .TableName }}"
-}`
-
 type StructTemplate struct {
 	structTpl string
 	Dir       string
@@ -36,8 +25,8 @@ type StructTemplateDB struct {
 	Columns   []*StructColumn
 }
 
-func NewStructTemplate(dir string) *StructTemplate {
-	return &StructTemplate{structTpl: structTpl, Dir: "dist/" + dir}
+func NewStructTemplate(dir, tmpl string) *StructTemplate {
+	return &StructTemplate{structTpl: tmpl, Dir: "dist/" + dir}
 }
 
 func (t *StructTemplate) AssemblyColumns(tbColumns []*TableColumn) []*StructColumn {

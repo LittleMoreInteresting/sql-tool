@@ -1,0 +1,64 @@
+package model
+
+import (
+     "context"
+     "gorm.io/gorm"
+)
+
+type {{ .TableName | ToCamelCase }} struct {
+	{{range $index, $element := .Columns}}{{ if gt $index 0 }}
+	{{ end }}{{ $typeLen := len .Type }}{{ if gt $typeLen 0 }}{{.Name | ToCamelCase}}	{{.Type}}	{{.Tag}}{{ else }}{{.Name}}{{ end }}{{ $length := len .Comment}}{{ if gt $length 0 }}// {{ .Comment }}{{else}}// {{.Name}}{{ end }}{{end}}
+}
+
+func (model {{ .TableName | ToCamelCase}}) TableName() string {
+    return "{{ .TableName }}"
+}
+
+type {{ .TableName | ToCamelCase }}Interface interface {
+    Create{{ .TableName | ToCamelCase }}(ctx context.Context,t *{{ .TableName | ToCamelCase }}) (*{{ .TableName | ToCamelCase }},error)
+    Get{{ .TableName | ToCamelCase }}(ctx context.Context,id int64) (*{{ .TableName | ToCamelCase }},error)
+    Update{{ .TableName | ToCamelCase }}(ctx context.Context,t *{{ .TableName | ToCamelCase }}) error
+    Delete{{ .TableName | ToCamelCase }}(ctx context.Context,id int64) error
+}
+var _ {{ .TableName | ToCamelCase }}Interface = (*{{ .TableName | ToCamelCase }}Repo)(nil)
+
+type {{ .TableName | ToCamelCase }}Repo struct {
+    db  *gorm.DB
+}
+
+func New{{ .TableName | ToCamelCase }}Repo(db *gorm.DB) *{{ .TableName | ToCamelCase }}Repo {
+    return &{{ .TableName | ToCamelCase }}Repo{
+        db:db,
+    }
+}
+
+// Get DB client
+func(m *{{ .TableName | ToCamelCase }}Repo)DB(ctx context.Context) *gorm.DB {
+    return m.db
+}
+
+//Create One record
+func (m *{{ .TableName | ToCamelCase }}Repo) Create{{ .TableName | ToCamelCase }}(ctx context.Context,t *{{ .TableName | ToCamelCase }}) (*{{ .TableName | ToCamelCase }},error){
+    err := m.DB(ctx).Create(t).Error
+    if err != nil {
+        return nil,err
+    }
+    return t,err
+}
+
+//Get One record
+func (m *{{ .TableName | ToCamelCase }}Repo) Get{{ .TableName | ToCamelCase }}(ctx context.Context,id int64) (*{{ .TableName | ToCamelCase }},error){
+    record := &{{ .TableName | ToCamelCase }}{}
+    err:= m.DB(ctx).First(record,id).Error
+    return record,err
+}
+
+//Update One record
+func (m *{{ .TableName | ToCamelCase }}Repo) Update{{ .TableName | ToCamelCase }}(ctx context.Context,t *{{ .TableName | ToCamelCase }}) error {
+    return m.DB(ctx).Updates(t).Error
+}
+
+//Delete One record
+func (m *{{ .TableName | ToCamelCase }}Repo) Delete{{ .TableName | ToCamelCase }}(ctx context.Context,id int64) error {
+    return m.DB(ctx).Delete(&{{ .TableName | ToCamelCase }}{},id).Error
+}
