@@ -12,4 +12,5 @@ func Execute() error {
 
 func init() {
 	rootCmd.AddCommand(sqlToStructCmd)
+	rootCmd.AddCommand(sqlFileToStructCmd)
 }

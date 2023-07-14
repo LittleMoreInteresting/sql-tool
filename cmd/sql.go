@@ -19,7 +19,7 @@ var tableName string
 var tmpl string
 
 var sqlToStructCmd = &cobra.Command{
-	Use:   "struct",
+	Use:   "sql",
 	Short: "sql to struct",
 	Long:  "sql to struct",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -43,7 +43,7 @@ var sqlToStructCmd = &cobra.Command{
 			if err != nil {
 				log.Fatalf("dbModel.GetCloumns error :%v", err)
 			}
-			tpl := sqlToStruct.NewStructTemplate(dbName, string(template))
+			tpl := sqlToStruct.NewStructTemplate(dbName, string(template), dbName)
 			dir = tpl.CheckDir()
 			tplColumns := tpl.AssemblyColumns(columns)
 			err = tpl.Generate(tableName, tplColumns)
@@ -64,7 +64,7 @@ var sqlToStructCmd = &cobra.Command{
 			if err != nil {
 				log.Fatalf("dbModel.GetCloumns error :%v", err)
 			}
-			tpl := sqlToStruct.NewStructTemplate(dbName, string(template))
+			tpl := sqlToStruct.NewStructTemplate(dbName, string(template), dbName)
 			dir = tpl.CheckDir()
 			tplColumns := tpl.AssemblyColumns(columns)
 			err = tpl.Generate(t, tplColumns)

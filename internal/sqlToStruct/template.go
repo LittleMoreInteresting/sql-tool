@@ -11,6 +11,7 @@ import (
 type StructTemplate struct {
 	structTpl string
 	Dir       string
+	Database  string
 }
 
 type StructColumn struct {
@@ -21,12 +22,13 @@ type StructColumn struct {
 }
 
 type StructTemplateDB struct {
+	Database  string
 	TableName string
 	Columns   []*StructColumn
 }
 
-func NewStructTemplate(dir, tmpl string) *StructTemplate {
-	return &StructTemplate{structTpl: tmpl, Dir: "dist/" + dir}
+func NewStructTemplate(dir, tmpl, db string) *StructTemplate {
+	return &StructTemplate{structTpl: tmpl, Dir: "dist/" + dir, Database: db}
 }
 
 func (t *StructTemplate) AssemblyColumns(tbColumns []*TableColumn) []*StructColumn {
@@ -50,6 +52,7 @@ func (t *StructTemplate) Generate(tbName string, tplColumns []*StructColumn) err
 	}).Parse(t.structTpl))
 
 	tplDB := StructTemplateDB{
+		Database:  t.Database,
 		TableName: tbName,
 		Columns:   tplColumns,
 	}
