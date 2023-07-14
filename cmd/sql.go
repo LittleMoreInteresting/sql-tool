@@ -5,8 +5,8 @@ import (
 	"log"
 	"os/exec"
 
+	"github.com/LittleMoreInteresting/sql-tool/internal/sqlToStruct"
 	"github.com/spf13/cobra"
-	"github.com/sql-tool/internal/sqlToStruct"
 )
 
 var username string
@@ -79,10 +79,10 @@ var sqlToStructCmd = &cobra.Command{
 func init() {
 	sqlToStructCmd.Flags().StringVarP(&username, "username", "u", "", "请输入数据库的账号")
 	sqlToStructCmd.Flags().StringVarP(&password, "password", "p", "", "请输入数据库的密码")
-	sqlToStructCmd.Flags().StringVarP(&host, "host", "h", "127.0.0.1:3306", "请输入数据库的HOST")
+	sqlToStructCmd.Flags().StringVarP(&host, "host", "", "127.0.0.1:3306", "请输入数据库的HOST")
 	sqlToStructCmd.Flags().StringVarP(&charset, "charset", "c", "utf8mb4", "请输入数据库编码")
-	sqlToStructCmd.Flags().StringVarP(&dbType, "type", "t", "mysql", "请输入数据库的类型")
+	sqlToStructCmd.Flags().StringVarP(&dbType, "type", "", "mysql", "请输入数据库的类型")
 	sqlToStructCmd.Flags().StringVarP(&dbName, "db", "d", "", "请输入数据库")
 	sqlToStructCmd.Flags().StringVarP(&tableName, "table", "t", "", "请输入表名(不输入将全库导出)")
-	sqlToStructCmd.Flags().StringVarP(&tmpl, "tmpl", "tp", "./template/model.tmpl", "模版文件")
+	sqlToStructCmd.Flags().StringVarP(&tmpl, "tmpl", "m", "./template/model.tmpl", "模版文件")
 }

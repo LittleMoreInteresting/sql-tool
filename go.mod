@@ -1,4 +1,4 @@
-module github.com/sql-tool
+module github.com/LittleMoreInteresting/sql-tool
 
 go 1.17
 

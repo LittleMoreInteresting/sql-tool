@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/sql-tool/cmd"
+	"github.com/LittleMoreInteresting/sql-tool/cmd"
 )
 
-//go:generate go run main.go struct -U root -P root --db bss_sys
+//go:generate go run main.go struct -u root -p root --db bss_sys
 func main() {
 	err := cmd.Execute()
 	if err != nil {

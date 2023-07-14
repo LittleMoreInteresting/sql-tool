@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"text/template"
 
-	"github.com/sql-tool/pkg/file"
-	"github.com/sql-tool/pkg/word"
+	"github.com/LittleMoreInteresting/sql-tool/pkg/file"
+	"github.com/LittleMoreInteresting/sql-tool/pkg/word"
 )
 
 type StructTemplate struct {

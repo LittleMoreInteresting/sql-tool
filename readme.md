@@ -2,9 +2,9 @@
 
 ## Install
 
-> go install 
+> go install github.com/LittleMoreInteresting/sql-tool@latest
 > 
 
 ## Usage
 
-> sql-tool struct -U root -P root --db bss_sys 
+> sql-tool struct -u root -p root --db bss_sys 
