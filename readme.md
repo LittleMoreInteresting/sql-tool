@@ -7,11 +7,11 @@
 
 ## Usage
 
-> sql-tool struct -u root -p root --db bss_sys 
+> sql-tool sql -u root -p root --db bss_sys 
 
 ```shell
 Usage:
-   struct [flags]
+   sql [flags]
 
 Flags:
   -c, --charset string    请输入数据库编码 (default "utf8mb4")
